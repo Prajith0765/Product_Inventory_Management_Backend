@@ -13,14 +13,18 @@ namespace Inventory_Management_Controller.API.Controllers
     {
         private readonly IProductService _service;
         private readonly IExcelExportService _excelExportService;
+        private readonly IExcelImportService _excelImportService;
         public ProductController(
             IProductService productService,
-            IExcelExportService excelExportService
+            IExcelExportService excelExportService,
+            IExcelImportService excelImportService
             )
         {
             this._service = productService;
             this._excelExportService = excelExportService;
+            this._excelImportService = excelImportService;
         }
+
         
         //Controller that calls the Service for GetProducts
         [HttpGet("getAll")]
@@ -42,22 +46,21 @@ namespace Inventory_Management_Controller.API.Controllers
         [Authorize(Roles = "Admin,Manager")]
         //Controller that calls the Service for Adding New Products
         [HttpPost("save")]
-        public async Task<IActionResult> SaveProduct([FromBody] ProductSaveDTO dto)
+        public async Task<IActionResult> SaveProduct([FromBody] List<ProductSaveDTO> products)
         {
             var username = User.Identity?.Name;
 
             if (string.IsNullOrEmpty(username))
                 return Unauthorized("User not authenticated");
 
-            await _service.SaveProductAsync(dto, username);
+            await _service.SaveProductAsync(products, username);
 
             return Ok(new
             {
-                message = dto.ProductId == null
-                    ? "Product created successfully"
-                    : "Product updated successfully"
+                  message =  "Product Saved successfully"
             });
         }
+        //Controller that calls the Service for Deleting Product (Soft Delete)
         [Authorize(Roles = "Admin")]
         [HttpDelete("delete/{id}")]
         public async Task DeleteProduct(int id)
@@ -66,14 +69,14 @@ namespace Inventory_Management_Controller.API.Controllers
             await _service.DeleteProductAsync(id, loggedInUser);
         }
 
-
+        //Controller that calls the Service for Searching Products
         [HttpGet("SearchProduct")]
         public IActionResult SearchProduct(string searchText)
         {
             var result = _service.SearchProducts(searchText);
             return Ok(result);
         }
-
+        //Controller that calls the Service for Debug the Token
         [Authorize]
         [HttpGet("debug")]
         public IActionResult Debug()
@@ -87,7 +90,7 @@ namespace Inventory_Management_Controller.API.Controllers
                             .Select(c => c.Value)
             });
         }
-
+        //Controller that calls the Service for Export Product Data in a Excel Form
         [HttpGet("export")]
         public async Task<IActionResult> ExportProducts()
         {
@@ -95,12 +98,25 @@ namespace Inventory_Management_Controller.API.Controllers
                            ?? new List<ProductResponseDTO>();
 
             var fileBytes = _excelExportService.ExportProductsToExcel(products);
-
+            // Send the data in a http response form with byte data
             return File(
                 fileBytes,
                 "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
                 $"Products_{DateTime.Now:yyyyMMddHHmmss}.xlsx"
             );
+        }
+
+
+        [HttpPost("import")]
+        public async Task<IActionResult> ImportProducts(IFormFile file)
+        {
+            var result = await _excelImportService.ImportProductsAsync(file);
+
+            return Ok(new
+            {
+                Products = result.products,
+                Errors = result.errors
+            });
         }
     }
 }

@@ -44,7 +44,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
-
+// Provide Authentication Access to the Swagger
 builder.Services.AddSwaggerGen(options =>
 {
     options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
@@ -81,12 +81,19 @@ builder.Services.AddScoped<IAuthRepository, AuthRepository>();
 
 // Register JWT Service
 builder.Services.AddScoped<IJwtService, JwtService>();
+// Register the DashBoard Repository
 builder.Services.AddScoped<IDashboardRepository, DashboardRepository>();
+// Register the DashBoard Repository
 builder.Services.AddScoped<IDashboardService, DashboardService>();
+//Register the Product Service
 builder.Services.AddScoped<IProductService, ProductService>();
+//Register the Product Repository
 builder.Services.AddScoped<IProductRepository, ProductRepository>();
-
+//Register the Excel Export Service
 builder.Services.AddScoped<IExcelExportService, ExcelExportService>();
+//Register the Excel Import Service
+builder.Services.AddScoped<IExcelImportService, ExcelImportService>();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

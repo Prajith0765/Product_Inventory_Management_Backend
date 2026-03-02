@@ -20,8 +20,8 @@ namespace Inventory_Management.Infrastructure.Repository
             _configuration = configuration;
         }
 
-        //Repository for Adding Products into the DB Table
-        public async Task SaveProductAsync(ProductSaveDTO product, string loggedInUser)
+        //Repository for Adding and Updating Products into the DB Table
+        public async Task SaveProductAsync(List<ProductSaveDTO> products, string loggedInUser)
         {
             using SqlConnection conn = new SqlConnection(
                 _configuration.GetConnectionString("DefaultConnection"));
@@ -44,23 +44,24 @@ namespace Inventory_Management.Infrastructure.Repository
             dt.Columns.Add("MODIFIED_AT", typeof(DateTime));
             dt.Columns.Add("PRODUCT_ISDELETED", typeof(bool));
 
-            bool isNew = !product.ProductId.HasValue;
+            products.ForEach(product =>
+            {
+                bool isNew = !product.ProductId.HasValue;
 
-            dt.Rows.Add(
-                product.ProductId.HasValue ? product.ProductId.Value : DBNull.Value,
-                product.ProductName,
-                product.ProductCode,
-                product.ProductCategory,
-                product.ProductQuantity,
-                product.ProductExpiredDate,
-
-                // Backend controlled audit fields
-                loggedInUser ?? "SYSTEM",
-                now,
-                isNew ? (object)DBNull.Value : loggedInUser ?? "SYSTEM",
-                isNew ? (object)DBNull.Value : now,
-                false
-            );
+                dt.Rows.Add(
+                    product.ProductId ?? (object)DBNull.Value,
+                    product.ProductName,
+                    product.ProductCode,
+                    product.ProductCategory,
+                    product.ProductQuantity,
+                    product.ProductExpiredDate,
+                    loggedInUser ?? "SYSTEM",
+                    now,
+                    isNew ? (object)DBNull.Value : loggedInUser ?? "SYSTEM",
+                    isNew ? (object)DBNull.Value : now,
+                    false
+                );
+            });
 
             SqlParameter tvpParam = new SqlParameter("@PRODUCTS", SqlDbType.Structured)
             {
@@ -72,6 +73,8 @@ namespace Inventory_Management.Infrastructure.Repository
 
             await conn.OpenAsync();
             await cmd.ExecuteNonQueryAsync();
+            await conn.CloseAsync();
+
         }
 
         //Repository For GetAll Products from the Table
@@ -107,7 +110,7 @@ namespace Inventory_Management.Infrastructure.Repository
 
 
         //}
-
+        //Respository for Getting All the Products in a List
         public IList<ProductResponseDTO> GetProducts()
         {
             try
@@ -120,8 +123,11 @@ namespace Inventory_Management.Infrastructure.Repository
                 cmd.CommandType = CommandType.StoredProcedure;
 
                 conn.Open();
+                var result = DataTableMapper.ToList<ProductResponseDTO>(cmd);
+                conn.Close();
 
-                return DataTableMapper.ToList<ProductResponseDTO>(cmd);
+                return result;
+                    
             }
             catch
             {
@@ -155,6 +161,8 @@ namespace Inventory_Management.Infrastructure.Repository
                             ProductExpiredDate = reader.GetDateTime(5).Date
                         };
                     }
+                    await conn.CloseAsync();
+
                     return null;
                 }
             }
@@ -175,11 +183,12 @@ namespace Inventory_Management.Infrastructure.Repository
 
             await conn.OpenAsync();
             await cmd.ExecuteNonQueryAsync();
+            await conn.CloseAsync();
         }
 
 
 
-
+        //Repository for Searching the products by their id, name, code
         public IList<ProductResponseDTO> SearchProducts(string searchText)
         {
             try
@@ -196,8 +205,11 @@ namespace Inventory_Management.Infrastructure.Repository
                 cmd.Parameters.AddWithValue("@SEARCH_TEXT", searchText);
 
                 conn.Open();
+                
+                var result = DataTableMapper.ToList<ProductResponseDTO>(cmd);
 
-                return DataTableMapper.ToList<ProductResponseDTO>(cmd);
+                conn.Close();
+                return result;
             }
             catch
             {

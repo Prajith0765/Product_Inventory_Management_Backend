@@ -11,6 +11,7 @@ namespace Inventory_Management.Infrastructure.Extension
 {
     public static class DataTableExtension
     {
+        //Get the converted List and map the values with the dto convert the database object to C# object
         public static List<T> ToList<T>(this DataTable table) where T : new()
         {
             var properties = typeof(T).GetProperties(BindingFlags.Public | BindingFlags.Instance);

@@ -22,5 +22,10 @@ namespace Inventory_Management.Application.Service
              return _repository.GetDashboardSummary();
   
         }
+
+        public IList<DashboardSummaryDTO> SearchDashboard(string searchText)
+        {
+            return _repository.SearchDashboard(searchText);
+        }
     }
 }

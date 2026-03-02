@@ -10,5 +10,6 @@ namespace Inventory_Management.Application.Interface
     public interface IDashboardService
     {
         IList<DashboardSummaryDTO> GetDashboardSummary();
+        IList<DashboardSummaryDTO> SearchDashboard(string searchText);
     }
 }

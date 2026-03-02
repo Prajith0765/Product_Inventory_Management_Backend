@@ -1,4 +1,5 @@
 ﻿using Inventory_Management.Application.DTO;
+using Microsoft.AspNetCore.Http;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,9 +8,8 @@ using System.Threading.Tasks;
 
 namespace Inventory_Management.Application.Interface
 {
-    public interface IDashboardRepository
+    public interface IExcelImportService
     {
-        IList<DashboardSummaryDTO> GetDashboardSummary();
-        IList<DashboardSummaryDTO> SearchDashboard(string searchText);
+        Task<(List<ProductSaveDTO> products, List<string> errors)> ImportProductsAsync(IFormFile file);
     }
 }

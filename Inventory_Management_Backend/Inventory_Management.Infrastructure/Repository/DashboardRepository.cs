@@ -20,7 +20,8 @@ namespace Inventory_Management.Application.Service
         {
             _configuration = configuration;
         }
-
+        
+        //Repository for getting the Product name, code, total quantity, Expired Quantity
         public IList<DashboardSummaryDTO> GetDashboardSummary()
         {
             using var conn = new SqlConnection(
@@ -32,7 +33,27 @@ namespace Inventory_Management.Application.Service
 
             conn.Open();
 
-            return DataTableMapper.ToList<DashboardSummaryDTO>(cmd);
+            var result = DataTableMapper.ToList<DashboardSummaryDTO>(cmd);
+
+            conn.Close();
+            return result;
+        }
+
+        public IList<DashboardSummaryDTO> SearchDashboard(string searchText)
+        {
+            using var conn = new SqlConnection(_configuration.GetConnectionString("DefaultConnection"));
+            using var cmd = new SqlCommand("SP_SEARCH_PRODUCTS_FOR_DASHBOARD", conn);
+
+            cmd.CommandType = CommandType.StoredProcedure;
+            cmd.Parameters.AddWithValue("@SEARCH_TEXT", searchText);
+
+            conn.Open();
+
+            var result = DataTableMapper.ToList<DashboardSummaryDTO>(cmd);
+
+            conn.Close();
+
+            return result;
         }
     }
 }

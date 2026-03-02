@@ -10,7 +10,7 @@ namespace Inventory_Management.Application.Interface
     {
         IList<ProductResponseDTO> GetProducts();
         Task<ProductResponseDTO> GetProductByIdAsync(int id);
-        Task SaveProductAsync(ProductSaveDTO product, string loggedInUser);
+        Task SaveProductAsync(List<ProductSaveDTO> products, string loggedInUser);
 
         Task DeleteProductAsync(int id, string loggedInUser);
 

@@ -23,9 +23,9 @@ namespace Inventory_Management.Application.Service
         {
             return await productRepository.GetProductByIdAsync(id);
         }
-        public async Task SaveProductAsync(ProductSaveDTO product, string loggedInUser)
+        public async Task SaveProductAsync(List<ProductSaveDTO> products, string loggedInUser)
         {
-            await productRepository.SaveProductAsync(product, loggedInUser);
+            await productRepository.SaveProductAsync(products, loggedInUser);
         }
 
         public async Task DeleteProductAsync(int id, string loggedInUser)

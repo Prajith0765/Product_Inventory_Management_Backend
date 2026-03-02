@@ -15,7 +15,7 @@ namespace Inventory_Management_Controller.API.Controllers
         {
             _authService = authService;
         }
-
+        //Login Controller Get and calls the Login Service
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginDTO request)
         {

@@ -17,12 +17,19 @@ namespace Inventory_Management_Controller.API.Controllers
         {
             _dashboardService = dashboardService;
         }
-
+        //Controller that calls the service of Get Dashboard Summary
         [HttpGet]
         public ActionResult<IList<DashboardSummaryDTO>> GetDashboardSummary()
         {
             var result = _dashboardService.GetDashboardSummary();
 
+            return Ok(result);
+        }
+
+        [HttpGet("search")]
+        public IActionResult SearchDashboard(string searchText)
+        {
+            var result = _dashboardService.SearchDashboard(searchText);
             return Ok(result);
         }
     }

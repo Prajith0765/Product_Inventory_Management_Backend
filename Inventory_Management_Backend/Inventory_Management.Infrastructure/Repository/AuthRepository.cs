@@ -20,6 +20,7 @@ namespace Inventory_Management.Infrastructure.Repository
             _connectionString = config.GetConnectionString("DefaultConnection");
         }
 
+        //Validate the user by comparing username and password with the database 
         public async Task<User?> ValidateUserAsync(string username)
         {
             using SqlConnection conn = new SqlConnection(_connectionString);
@@ -42,6 +43,7 @@ namespace Inventory_Management.Infrastructure.Repository
                 };
 
             }
+            conn.Close();
             return null;
         }
     }

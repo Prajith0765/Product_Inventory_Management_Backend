@@ -12,6 +12,7 @@ namespace Inventory_Management.Infrastructure.SQLHelper
 {
     public static class DataTableMapper
     {
+        //Get the data in a datatable and convert to List
         public static IList<T> ToList<T>(IDbCommand command) where T : new()
         {
             DataTable dt = new DataTable();
